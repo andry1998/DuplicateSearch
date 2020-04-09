@@ -101,7 +101,7 @@ public class DuplicateJFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         BDFlowers bd1 = new BDFlowers();
-        
+        //коммент
         try {
             for(Object item : bd1.getDuplicateToName1().entrySet()){
                 //jTextField2.setText(item.toString());
