@@ -26,7 +26,7 @@ import javax.swing.*;
  * @author Андрей
  */
 public class BDFlowers {
-    Connection con = null;
+    static Connection con = null;
     String str;
 
     public class ArrayLogname{
@@ -60,33 +60,28 @@ public class BDFlowers {
         BDFlowers bd = new BDFlowers();
         bd.Connect1();
         
-        for(Object item : bd.getDuplicateToName1().entrySet()){
-            String str = item.toString();
-            System.out.println(str);
-        }
-        
+//        for(Object item : bd.getDuplicateToName1().entrySet()){
+//            String str = item.toString();
+//            System.out.println(str);
+//        }
     }
     
         
-        public  void select() throws SQLException {
+        public static String select() throws SQLException {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("select logname FROM reguser;");
-
+            String str = "Hello World";
             rs.close();
             stmt.close();
-            
-    }
+            return str;
+        }
         
          
         
-         public HashMap getDuplicateToName1() throws SQLException, IOException{
+        public  HashMap getDuplicateToFName() throws SQLException, IOException{
              
-            File file = new File("DuplicateUsers.txt");  
-            FileOutputStream f = new FileOutputStream(file);  
-            ObjectOutputStream s = new ObjectOutputStream(f);
-            
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("select uid, logname FROM reguser;");
+            ResultSet rs = stmt.executeQuery("select uid, fname FROM reguser;");
             
             HashMap<Integer, String> fhash = new HashMap<>();
             HashMap<String, ArrayList<Integer>> duplicateHash  = new HashMap<>();
@@ -95,7 +90,48 @@ public class BDFlowers {
             while(rs.next()){
                 fhash.put(rs.getInt(1), rs.getString(2));
             }
+
+            arrDuplicates(fhash, duplicateHash);
+            HashMapStepByStepPassage(duplicateHash, result);
+   
+            rs.close();
+            stmt.close();
             
+            return result;
+        }
+        
+        public  HashMap getDuplicateToEmail() throws SQLException, IOException{
+             
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("select uid, email FROM reguser;");
+            
+            HashMap<Integer, String> fhash = new HashMap<>();
+            HashMap<String, ArrayList<Integer>> duplicateHash  = new HashMap<>();
+            HashMap<String, ArrayList<Integer>> result  = new HashMap<>();
+ 
+            while(rs.next()){
+                fhash.put(rs.getInt(1), rs.getString(2));
+            }
+
+            arrDuplicates(fhash, duplicateHash);
+            HashMapStepByStepPassage(duplicateHash, result);
+   
+            rs.close();
+            stmt.close();
+            
+            return result;
+        }
+        
+        public void HashMapStepByStepPassage(HashMap<String,ArrayList<Integer>> duplicateHash,
+                                            HashMap<String, ArrayList<Integer>> result){
+            for(Map.Entry<String, ArrayList<Integer>> item : duplicateHash.entrySet()){
+                if(item.getValue().size() > 1){
+                    result.put(item.getKey(), item.getValue());
+                }
+            }    
+        }
+         
+        public void arrDuplicates(HashMap<Integer, String> fhash, HashMap<String,ArrayList<Integer>> duplicateHash){
             Set<Integer> keys = fhash.keySet();
             for(Integer k: keys){
                 String fname = fhash.get(k);
@@ -106,28 +142,8 @@ public class BDFlowers {
                 ai.add(k);
                 duplicateHash.put(fname,ai);
             }
-            
-           
-            
-            for(Map.Entry<String, ArrayList<Integer>> item : duplicateHash.entrySet()){
-                if(item.getValue().size() > 1){
-                    result.put(item.getKey(), item.getValue());
-                //System.out.println(item.getKey() + " = " + item.getValue());
-                }
-            }    
-            
-//            for(Map.Entry<String, ArrayList<Integer>> item : result.entrySet()){
-//                System.out.println(item.getKey() + " = " + item.getValue());
-//            }
-            s.writeObject(result);
-            s.close();
-            rs.close();
-            stmt.close();
-            
-            return result;
-
         }
-         
+        
          public void Connect1(){
             try {
                 Class.forName("org.postgresql.Driver");
